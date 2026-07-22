@@ -56,10 +56,10 @@ function setCookies(setCookieHeaders: string[]): string[] {
 }
 
 export async function login(): Promise<boolean> {
-  const email = process.env.ARENA_VIRTUAL_EMAIL;
+  const username = process.env.ARENA_VIRTUAL_USERNAME;
   const password = process.env.ARENA_VIRTUAL_PASSWORD;
 
-  if (!email || !password) {
+  if (!username || !password) {
     console.error("Arena Virtual credentials not configured");
     return false;
   }
@@ -72,7 +72,7 @@ export async function login(): Promise<boolean> {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        email,
+        email: username,
         password,
       }).toString(),
       redirect: "manual",
