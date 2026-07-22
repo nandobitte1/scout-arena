@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchSofifaPlayers, searchByFilters } from "@/lib/sofifa/api";
+import { getPlayerDetail } from "@/lib/arena-virtual/scraper";
 import { PlayerResult } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -63,10 +64,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const results: PlayerResult[] = sofifaResults.map((sofifa) => ({
-      arena: null,
-      sofifa,
-    }));
+    const results: PlayerResult[] = await Promise.all(
+      sofifaResults.map(async (sofifa) => {
+        let arena = null;
+        try {
+          arena = await getPlayerDetail(sofifa.id);
+        } catch {}
+        return { arena, sofifa };
+      })
+    );
 
     return NextResponse.json({ results });
   } catch (err) {

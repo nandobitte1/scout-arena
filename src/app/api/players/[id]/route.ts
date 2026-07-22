@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSofifaPlayer } from "@/lib/sofifa/api";
+import { getPlayerDetail, getArenaApiPlayer } from "@/lib/arena-virtual/scraper";
 import { PlayerResult } from "@/types";
 
 export async function GET(
@@ -17,16 +18,20 @@ export async function GET(
   }
 
   try {
-    const sofifa = await getSofifaPlayer(playerId);
+    const [sofifa, arena, arenaRaw] = await Promise.all([
+      getSofifaPlayer(playerId).catch(() => null),
+      getPlayerDetail(playerId).catch(() => null),
+      getArenaApiPlayer(playerId).catch(() => null),
+    ]);
 
-    if (!sofifa) {
+    if (!sofifa && !arena) {
       return NextResponse.json(
         { error: "Player not found" },
         { status: 404 }
       );
     }
 
-    const result: PlayerResult = { arena: null, sofifa };
+    const result: PlayerResult = { arena, sofifa, arenaRaw };
 
     return NextResponse.json(result);
   } catch (err) {

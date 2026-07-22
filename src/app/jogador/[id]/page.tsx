@@ -111,9 +111,10 @@ export default function PlayerDetailPage() {
     );
   }
 
-  const { arena, sofifa } = data;
-  const name = sofifa?.name || arena?.name || "Desconhecido";
-  const photo = sofifa?.headshotUrl || arena?.photoUrl || "";
+  const { arena, sofifa, arenaRaw } = data;
+  const name = arenaRaw?.nome_completo || sofifa?.name || arena?.name || "Desconhecido";
+  const displayName = sofifa?.name || arena?.name || arenaRaw?.nome || "Desconhecido";
+  const photo = arenaRaw?.foto || sofifa?.headshotUrl || arena?.photoUrl || "";
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -127,7 +128,7 @@ export default function PlayerDetailPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-lg font-bold text-white">{name}</h1>
+          <h1 className="text-lg font-bold text-white">{displayName}</h1>
           {arena && <StatusBadge status={arena.status} />}
         </div>
       </header>
@@ -197,8 +198,8 @@ export default function PlayerDetailPage() {
                   />
                   {arena.value > 0 && (
                     <InfoRow
-                      label="Valor na Liga"
-                      value={`${arena.value.toLocaleString("pt-BR")}`}
+                      label="Passe"
+                      value={`$ ${arena.value.toLocaleString("pt-BR")}`}
                     />
                   )}
                   <InfoRow
@@ -216,9 +217,78 @@ export default function PlayerDetailPage() {
                   {arena.nationality && (
                     <InfoRow label="Nacionalidade" value={arena.nationality} />
                   )}
+                  {arenaRaw?.idade ? (
+                    <InfoRow label="Idade" value={`${arenaRaw.idade} anos`} />
+                  ) : null}
+                  {arenaRaw?.altura ? (
+                    <InfoRow label="Altura" value={`${arenaRaw.altura} cm`} />
+                  ) : null}
+                  {arenaRaw?.pe ? (
+                    <InfoRow label="Pé" value={arenaRaw.pe === "D" ? "Destro" : arenaRaw.pe === "E" ? "Canhoto" : "Ambidestro"} />
+                  ) : null}
+                  {arenaRaw?.overall ? (
+                    <InfoRow label="Overall" value={arenaRaw.overall} />
+                  ) : null}
+                  {arenaRaw?.potencial ? (
+                    <InfoRow label="Potencial" value={arenaRaw.potencial} />
+                  ) : null}
+                  {arenaRaw?.bola?.bola_nome ? (
+                    <InfoRow label="Carta" value={arenaRaw.bola.bola_nome} />
+                  ) : null}
+                  {arenaRaw?.gol_temporada !== undefined && (
+                    <InfoRow label="Gols (Temporada)" value={arenaRaw.gol_temporada} />
+                  )}
+                  {arenaRaw?.gol_carreira !== undefined && (
+                    <InfoRow label="Gols (Carreira)" value={arenaRaw.gol_carreira} />
+                  )}
+                  {arenaRaw?.assistencia_temporada !== undefined && (
+                    <InfoRow label="Assistências (Temporada)" value={arenaRaw.assistencia_temporada} />
+                  )}
+                  {arenaRaw?.assistencia_carreira !== undefined && (
+                    <InfoRow label="Assistências (Carreira)" value={arenaRaw.assistencia_carreira} />
+                  )}
+                  {arenaRaw?.melhor_em_campo_carreira !== undefined && (
+                    <InfoRow label="Melhor em Campo" value={arenaRaw.melhor_em_campo_carreira} />
+                  )}
                 </div>
+
+                {arenaRaw?.funcoes && arenaRaw.funcoes.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs text-gray-400">Funções / Play Styles</p>
+                    <div className="space-y-2">
+                      {arenaRaw.funcoes.map((f, i) => (
+                        <div key={i} className="rounded-lg bg-gray-700/50 px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <span className="rounded bg-emerald-600/30 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                              {f.posicao}
+                            </span>
+                            <span className="text-xs font-medium text-white">{f.titulo}</span>
+                            <span className="text-[10px] text-gray-400">
+                              {f.familiaridade === "++" ? "Familiar" : f.familiaridade === "+" ? "Normal" : "Desconhecido"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {arenaRaw?.grafico_finalizacao !== undefined && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs text-gray-400">Atributos (Arena)</p>
+                    <div className="space-y-3">
+                      <StatBar label="FIN" value={arenaRaw.grafico_finalizacao} />
+                      <StatBar label="PAS" value={arenaRaw.grafico_passe} />
+                      <StatBar label="DRI" value={arenaRaw.grafico_drible} />
+                      <StatBar label="DEF" value={arenaRaw.grafico_defesa} />
+                      <StatBar label="FIS" value={arenaRaw.grafico_fisico} />
+                      <StatBar label="VEL" value={arenaRaw.grafico_velocidade} />
+                    </div>
+                  </div>
+                )}
+
                 <a
-                  href={`https://arenavirtual.arenavirtual.net/jogador/${arena.id}`}
+                  href={`https://arenavirtual.arenavirtual.net/pcontrole/jogador/${arena.id}/${arena.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-gray-700 py-2 text-xs text-gray-300 transition-colors hover:bg-gray-600 hover:text-white"
