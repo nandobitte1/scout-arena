@@ -137,8 +137,8 @@ export async function searchPlayers(
   await ensureSession();
 
   try {
-    const data = await apiGet<{ data: ArenaApiSearchResult[] }>(
-      `/pcontrole/api/jogadores?q=${encodeURIComponent(query)}`
+    const data = await apiGet<{ data: ArenaApiSearchResult[]; total: number }>(
+      `/pcontrole/api/jogadores?nome=${encodeURIComponent(query)}`
     );
     if (!data?.data) {
       return [];
